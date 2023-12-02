@@ -22,15 +22,15 @@ class AlunoHelper {
 
     return await openDatabase(path, version: 1,
         onCreate: (Database db, int newerVersion) async {
-          await db.execute(
-              "CREATE TABLE ${Aluno.alunoTable}(${Aluno.alunoid} INTEGER PRIMARY KEY AUTOINCREMENT, "
-                  "                             ${Aluno.aNome} TEXT, "
-                  "                             ${Aluno.aIdade} INTEGER, "
-                  "                             ${Aluno.aCurso} TEXT, "
-                  "                             ${Aluno.aEndereco} TEXT, "
-                  "                             ${Aluno.aNotas} INTEGER, "
-                  "                             ${Aluno.aSituacao} INTEGER) ");
-        });
+      await db.execute(
+          "CREATE TABLE ${Aluno.alunoTable}(${Aluno.alunoid} INTEGER PRIMARY KEY AUTOINCREMENT, "
+          "                             ${Aluno.aNome} TEXT, "
+          "                             ${Aluno.aIdade} INTEGER, "
+          "                             ${Aluno.aCurso} TEXT, "
+          "                             ${Aluno.aEndereco} TEXT, "
+          "                             ${Aluno.aNotas} INTEGER, "
+          "                             ${Aluno.aSituacao} INTEGER) ");
+    });
   }
 
   Future<Aluno> saveAluno(Aluno A) async {
@@ -44,7 +44,7 @@ class AlunoHelper {
   Future<Aluno?> getAluno(int id) async {
     Database? dbAluno = await db;
     if (dbAluno != null) {
-      List<Map> maps = await dbAluno.query(Aluno.alunoTable,
+      List<Map<String, dynamic>> maps = await dbAluno.query(Aluno.alunoTable,
           columns: [
             Aluno.alunoid,
             Aluno.aNome,
@@ -52,7 +52,7 @@ class AlunoHelper {
             Aluno.aCurso,
             Aluno.aEndereco,
             Aluno.aNotas,
-            Aluno.aSituacao            
+            Aluno.aSituacao
           ],
           where: "${Aluno.alunoid} = ?",
           whereArgs: [id]);
@@ -67,7 +67,7 @@ class AlunoHelper {
 
   Future<int> deleteAluno(int id) async {
     Database? dbAluno = await db;
-    if (dbAluno!= null) {
+    if (dbAluno != null) {
       return await dbAluno.delete(Aluno.alunoTable,
           where: "${Aluno.alunoid} = ?", whereArgs: [id]);
     } else {
@@ -85,18 +85,15 @@ class AlunoHelper {
     }
   }
 
-  Future<List> getAll() async {
-    Database? dbAluno = await db;
-    if (dbAluno != null) {
-      List listMap = await dbAluno.query(Aluno.alunoTable);
-      List<Aluno> listAluno = [];
-
-      for (Map m in listMap) {
-        listAluno.add(Aluno.fromMap(m));
-      }
-      return listAluno;
-    } else {
-      return [];
+  Future<List<Aluno>> getAll() async {
+    Database? db = await this.db;
+    List<Map<String, dynamic>>? maps =
+        await db?.query(Aluno.alunoTable, orderBy: "${Aluno.aNome} ASC");
+    List<Aluno> alunos = [];
+    for (var map in maps!) {
+      alunos.add(Aluno.fromMap(map));
     }
+    print("Alunos recuperados do banco de dados: $alunos");
+    return alunos;
   }
 }

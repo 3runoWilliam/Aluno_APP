@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:prova_aluno_pdm/widgets/CustomRatingBar.dart';
 import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/widgets/CustomFormField.dart';
 
 class CadastroPage extends StatelessWidget {
-  const CadastroPage({super.key});
+  const CadastroPage({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +13,9 @@ class CadastroPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("MEUS ALUNOS"),
       ),
-      body: FormAlunoBody(),
+      body: SingleChildScrollView(
+        child: FormAlunoBody(),
+      ),
       backgroundColor: Theme.of(context).colorScheme.background,
     );
   }
@@ -22,7 +23,7 @@ class CadastroPage extends StatelessWidget {
 
 class FormAlunoBody extends StatefulWidget {
   const FormAlunoBody({
-    super.key,
+    Key? key,
   });
 
   @override
@@ -32,9 +33,9 @@ class FormAlunoBody extends StatefulWidget {
 class _FormAlunoBodyState extends State<FormAlunoBody> {
   final _formKey = GlobalKey<FormState>();
 
-  // final alunoIdController = TextEditingController();
   final aNomeController = TextEditingController();
   final aIdadeController = TextEditingController();
+  final aCursoController = TextEditingController();
   final aEnderecoController = TextEditingController();
   final aNotasController = TextEditingController();
   final aSituacaoController = TextEditingController();
@@ -68,6 +69,7 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
             CustomFormField(
               controller: aIdadeController,
               labelText: "Idade",
+              keyboard_type: TextInputType.number,
               validate_function: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Adicione sua idade';
@@ -76,12 +78,11 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
               },
             ),
             CustomFormField(
-              controller: aEnderecoController,
-              labelText: "Endereco",
-              keyboard_type: TextInputType.number,
+              controller: aCursoController,
+              labelText: "Curso",
               validate_function: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Adicione seu endereco';
+                  return 'Adicione seu curso';
                 }
                 return null;
               },
@@ -89,7 +90,6 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
             CustomFormField(
               controller: aEnderecoController,
               labelText: "Endereco",
-              keyboard_type: TextInputType.number,
               validate_function: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Adicione seu endereco';
@@ -111,7 +111,6 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
             CustomFormField(
               controller: aSituacaoController,
               labelText: "Situacao",
-              keyboard_type: TextInputType.number,
               validate_function: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Adicione sua situação';
@@ -123,15 +122,21 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
                   Aluno A = Aluno(
-                              aNomeController.text,
-                              int.parse(aIdadeController.text).toString(),
-                              aEnderecoController.text,
-                              int.parse(aNotasController.text).toString(),
-                              aSituacaoController.text.toLowerCase() == 'true' ? 1 : 0,
-                              rating as bool,
-                            );
-                    alunoHelper.saveAluno(A);
+                    nome: aNomeController.text,
+                    idade: int.parse(aIdadeController.text).toString(),
+                    curso: aCursoController.text,
+                    endereco: aEnderecoController.text,
+                    notas: int.parse(aNotasController.text),
+                    situacao: aSituacaoController.text.toLowerCase() == 'true',
+                  );
+                  alunoHelper.saveAluno(A);
                   Navigator.pop(context);
+                  // Adicione um SnackBar aqui para informar que o aluno foi cadastrado com sucesso
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Aluno cadastrado com sucesso!'),
+                    ),
+                  );
                 }
               },
               style: TextButton.styleFrom(
@@ -148,6 +153,7 @@ class _FormAlunoBodyState extends State<FormAlunoBody> {
     );
   }
 }
+
 
 /*
   aNomeController

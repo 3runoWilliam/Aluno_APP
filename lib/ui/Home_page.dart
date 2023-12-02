@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Cadastro_page.dart';
-
-
+import 'package:prova_aluno_pdm/ui/Detalhe_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,36 +10,34 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: const Text("Meus alunos"),
-    ),
-    body: Column(
-      children: [
-        const ListBody(),
-        TextButton(
-          onPressed: () => Navigator.push(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Meus alunos"),
+      ),
+      body: const Column(
+        children: [
+          ListBody(),
+        ],
+      ),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CadastroPage(),
+              builder: (context) => const CadastroPage(),
             ),
-          ),
-          child: Text("Cadastrar Livro"),
-          style: TextButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            minimumSize: const Size(150, 50),
-          ),
-        ),
-      ],
-    ),
-    backgroundColor: Theme.of(context).colorScheme.background,
-  );
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }
 
-
 class ListBody extends StatefulWidget {
-  const ListBody({super.key});
+  const ListBody({Key? key});
 
   @override
   State<ListBody> createState() => _ListBodyState();
@@ -48,7 +45,7 @@ class ListBody extends StatefulWidget {
 
 class _ListBodyState extends State<ListBody> {
   final alunoHelper = AlunoHelper();
-  late Future<List> aluno;
+  late Future<List<Aluno>> aluno;
 
   @override
   void initState() {
@@ -58,15 +55,19 @@ class _ListBodyState extends State<ListBody> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return FutureBuilder<List<Aluno>>(
       future: aluno,
       builder: (context, snapshot) {
-        return snapshot.hasData  ? ListView.builder(
-                padding: const EdgeInsets.all(10.0),
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, i) {
-                  return ListItem(aluno: snapshot.data![i]);
-                },
+        print("Snapshot data: ${snapshot.data}");
+        return snapshot.hasData
+            ? Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(10.0),
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, i) {
+                    return ListItem(aluno: snapshot.data![i]);
+                  },
+                ),
               )
             : const Center(
                 child: CircularProgressIndicator(),
@@ -82,21 +83,23 @@ class ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-      GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Single Tap"),
-          ));
-        },
-        onLongPress: () {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Long Press"),
-          ));
-        },
-        child: ListTile(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaDetalhes(alunoId: aluno.id),
+          ),
+        );
+      },
+      onLongPress: () {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Long Press"),
+        ));
+      },
+      child: ListTile(
         title: Text(aluno.nome),
-    ),
-      );;
+      ),
+    );
   }
 }

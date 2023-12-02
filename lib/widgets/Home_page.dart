@@ -1,73 +1,149 @@
 import 'package:flutter/material.dart';
+import 'package:prova_aluno_pdm/domain/Aluno.dart';
+import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Cadastro_page.dart';
-import 'package:prova_aluno_pdm/ui/List_page.dart';
+import 'package:prova_aluno_pdm/ui/Detalhe_page.dart';
+import 'package:prova_aluno_pdm/ui/List_page.dart' as MyListPage;
+import 'package:prova_aluno_pdm/ui/TelaAltera_page.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("MEUS ALUNOS"),
+        title: const Text("Meus alunos"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyListPage.ListPage(),
+                ),
+              );
+            },
+            icon: Icon(Icons.list),
+          ),
+        ],
       ),
-      body: HomeBody(),
+      body: const Column(
+        children: [
+          MyListPage.ListBody(),
+        ],
+      ),
       backgroundColor: Theme.of(context).colorScheme.background,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CadastroPage(),
+            ),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaDetalhes(alunoId: 0),
+                  ),
+                );
+              },
+              icon: Icon(Icons.details),
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TelaAlteracao(),
+                  ),
+                );
+              },
+              icon: Icon(Icons.edit),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-class HomeBody extends StatelessWidget {
-  const HomeBody({super.key});
+class ListBody extends StatefulWidget {
+  const ListBody({Key? key});
+
+  @override
+  State<ListBody> createState() => _ListBodyState();
+}
+
+class _ListBodyState extends State<ListBody> {
+  final alunoHelper = AlunoHelper();
+  late Future<List<Aluno>> aluno;
+
+  @override
+  void initState() {
+    super.initState();
+    aluno = alunoHelper.getAll();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CadastroPage(),
+    return FutureBuilder<List<Aluno>>(
+      future: aluno,
+      builder: (context, snapshot) {
+        print("Snapshot data: ${snapshot.data}");
+        return snapshot.hasData
+            ? Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(10.0),
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, i) {
+                    return ListItem(aluno: snapshot.data![i]);
+                  },
                 ),
-              ),
-              child: Text("Cadastrar Livro"),
-              style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  minimumSize: const Size(150, 50)),
-            ),
+              )
+            : const Center(
+                child: CircularProgressIndicator(),
+              );
+      },
+    );
+  }
+}
+
+class ListItem extends StatelessWidget {
+  final Aluno aluno;
+  const ListItem({Key? key, required this.aluno});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaDetalhes(alunoId: aluno.id),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ListPage(),
-                ),
-              ),
-              child: Text("Lista dos Livros"),
-              style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  minimumSize: const Size(150, 50)),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextButton(
-              onPressed: null,
-              child: Text("Catálogo dos Livros"),
-              style: TextButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  minimumSize: const Size(150, 50)),
-            ),
-          ),
-        ],
+        );
+      },
+      onLongPress: () {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Long Press"),
+        ));
+      },
+      child: ListTile(
+        title: Text(aluno.nome),
       ),
     );
   }

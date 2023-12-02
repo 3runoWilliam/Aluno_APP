@@ -1,6 +1,4 @@
-
 class Aluno {
-
   static const String alunoTable = "aluno_Table";
   static const String alunoid = "id";
   static const String aNome = "nome";
@@ -18,16 +16,23 @@ class Aluno {
   int notas = 0;
   bool situacao = false;
 
-  Aluno(this.nome, this.curso, this.idade, this.endereco, this.notas, this.situacao);
+  Aluno({
+    required this.nome,
+    required this.idade,
+    required this.curso,
+    required this.endereco,
+    required this.notas,
+    required this.situacao,
+  });
 
-  Aluno.fromMap(Map map) {
+  Aluno.fromMap(Map<String, dynamic> map) {
     id = map[alunoid];
     nome = map[aNome];
-    idade = map[aIdade];
+    idade = map[aIdade].toString();
     curso = map[aCurso];
     endereco = map[aEndereco];
     notas = map[aNotas];
-    situacao = map[aSituacao];
+    situacao = map[aSituacao] == 1;
   }
 
   Map<String, dynamic> toMap() {
@@ -43,6 +48,6 @@ class Aluno {
 
   @override
   String toString() {
-    return 'Aluno(nome: $nome, curso: $curso, idade: $idade, endereco: $endereco, notas: $notas, situacao: $situacao)';
+    return 'Aluno(nome: $nome, idade: $idade, curso: $curso, endereco: $endereco, notas: $notas, situacao: $situacao)';
   }
 }
