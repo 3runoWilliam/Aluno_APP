@@ -3,9 +3,10 @@ import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Cadastro_page.dart';
 import 'package:prova_aluno_pdm/ui/Detalhe_page.dart';
+import 'package:prova_aluno_pdm/ui/TelaAlteracaoDetalhes.dart';
 
-class ListPage extends StatelessWidget {
-  const ListPage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,25 +15,24 @@ class ListPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text("Meus alunos"),
       ),
-      body: Column(
+      body: const Column(
         children: [
-          const ListBody(),
-          TextButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const CadastroPage(),
-              ),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              minimumSize: const Size(150, 50),
-            ),
-            child: const Text("Cadastrar"),
-          ),
+          ListBody(),
         ],
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CadastroPage(),
+            ),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
@@ -94,9 +94,12 @@ class ListItem extends StatelessWidget {
         );
       },
       onLongPress: () {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Long Press"),
-        ));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaAlteracaoDetalhes(aluno: aluno, alunoId: aluno.id),
+          ),
+        );
       },
       child: ListTile(
         title: Text(aluno.nome),

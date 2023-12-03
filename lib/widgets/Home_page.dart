@@ -1,13 +1,29 @@
+// HomePage.dart
 import 'package:flutter/material.dart';
 import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Cadastro_page.dart';
 import 'package:prova_aluno_pdm/ui/Detalhe_page.dart';
-import 'package:prova_aluno_pdm/ui/List_page.dart' as MyListPage;
 import 'package:prova_aluno_pdm/ui/TelaAltera_page.dart';
+import 'package:prova_aluno_pdm/ui/TelaAlteracaoDetalhes.dart';
+import 'package:prova_aluno_pdm/ui/TelaSobre_page.dart'; // Importe a TelaSobre
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key});
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final alunoHelper = AlunoHelper();
+  late Future<List<Aluno>> alunos;
+
+  @override
+  void initState() {
+    super.initState();
+    alunos = alunoHelper.getAll();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,18 +37,94 @@ class HomePage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MyListPage.ListPage(),
+                  builder: (context) => TelaSobre(),
                 ),
               );
             },
-            icon: Icon(Icons.list),
+            icon: Icon(Icons.info), // Ícone para a TelaSobre
           ),
         ],
       ),
-      body: const Column(
-        children: [
-          MyListPage.ListBody(),
-        ],
+      body: FutureBuilder<List<Aluno>>(
+        future: alunos,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Erro ao carregar dados dos alunos.');
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return Text('Nenhum aluno encontrado.');
+          } else {
+            List<Aluno> alunos = snapshot.data!;
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Digite o ID do Aluno',
+                    ),
+                    onSubmitted: (value) {
+                      int alunoId = int.tryParse(value) ?? 0;
+                      if (alunoId > 0) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TelaAlteracaoDetalhes(
+                              aluno: Aluno(nome: '', idade: '', curso: '', endereco: '', notas: 0, situacao: true),
+                              alunoId: alunoId,
+                            ),
+                          ),
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text('ID Inválido'),
+                              content: Text('Por favor, digite um ID válido.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(10.0),
+                    itemCount: alunos.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(alunos[index].nome),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TelaAlteracaoDetalhes(
+                                aluno: Aluno(nome: '', idade: '', curso: '', endereco: '', notas: 0, situacao: true),
+                                alunoId: alunos[index].id,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
       floatingActionButton: FloatingActionButton(
@@ -76,74 +168,6 @@ class HomePage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ListBody extends StatefulWidget {
-  const ListBody({Key? key});
-
-  @override
-  State<ListBody> createState() => _ListBodyState();
-}
-
-class _ListBodyState extends State<ListBody> {
-  final alunoHelper = AlunoHelper();
-  late Future<List<Aluno>> aluno;
-
-  @override
-  void initState() {
-    super.initState();
-    aluno = alunoHelper.getAll();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Aluno>>(
-      future: aluno,
-      builder: (context, snapshot) {
-        print("Snapshot data: ${snapshot.data}");
-        return snapshot.hasData
-            ? Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(10.0),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, i) {
-                    return ListItem(aluno: snapshot.data![i]);
-                  },
-                ),
-              )
-            : const Center(
-                child: CircularProgressIndicator(),
-              );
-      },
-    );
-  }
-}
-
-class ListItem extends StatelessWidget {
-  final Aluno aluno;
-  const ListItem({Key? key, required this.aluno});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TelaDetalhes(alunoId: aluno.id),
-          ),
-        );
-      },
-      onLongPress: () {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Long Press"),
-        ));
-      },
-      child: ListTile(
-        title: Text(aluno.nome),
       ),
     );
   }

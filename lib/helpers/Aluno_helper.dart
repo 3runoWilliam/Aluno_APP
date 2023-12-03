@@ -75,13 +75,29 @@ class AlunoHelper {
     }
   }
 
-  Future<int> updateAluno(Aluno A) async {
-    Database? dbAluno = await db;
-    if (dbAluno != null) {
-      return await dbAluno.update(Aluno.alunoTable, A.toMap(),
-          where: "${Aluno.alunoid} = ?", whereArgs: [A.id]);
-    } else {
-      return 0;
+  // No seu AlunoHelper
+  // No seu AlunoHelper
+  Future<int> updateAluno(Aluno aluno) async {
+    try {
+      Database? db = await this.db;
+
+      // Adicione um check para garantir que 'db' não seja nulo
+      if (db != null) {
+        return await db.update(
+          Aluno.alunoTable,
+          aluno.toMap(),
+          where: '${Aluno.alunoid} = ?',
+          whereArgs: [aluno.id],
+        );
+      } else {
+        // Adicione uma lógica de tratamento para quando 'db' for nulo
+        print("Erro: 'db' é nulo durante a atualização do aluno.");
+        return 0; // ou outro valor de retorno indicando falha
+      }
+    } catch (e) {
+      // Adicione lógica de tratamento de erro, se necessário
+      print("Erro durante a atualização do aluno: $e");
+      return 0; // ou outro valor de retorno indicando falha
     }
   }
 

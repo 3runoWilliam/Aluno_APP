@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Home_page.dart';
+import 'package:prova_aluno_pdm/ui/TelaAlteracaoDetalhes.dart';
 
 class TelaAlteracao extends StatefulWidget {
   const TelaAlteracao({Key? key}) : super(key: key);
@@ -18,7 +19,7 @@ class _TelaAlteracaoState extends State<TelaAlteracao> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tela Alteração"),
+        title: const Text("Tela Alteração"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -44,8 +45,7 @@ class _TelaAlteracaoState extends State<TelaAlteracao> {
                     int alunoId = int.parse(_idController.text);
                     Aluno aluno = await AlunoHelper().getAluno(alunoId) ??
                         Aluno(
-                          nome:
-                              "", // fornecer valores padrão ou do banco de dados
+                          nome: "",
                           idade: "",
                           curso: "",
                           endereco: "",
@@ -53,12 +53,15 @@ class _TelaAlteracaoState extends State<TelaAlteracao> {
                           situacao: false,
                         );
                     if (aluno.id != 0) {
-                      // Se o aluno foi encontrado, navegue para a tela de alteração
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              TelaAlteracaoDetalhes(aluno: aluno),
+                              TelaAlteracaoDetalhes(
+                                aluno:
+                                    Aluno(nome: '', idade: '', curso: '', endereco: '', notas: 0, situacao: true), // Substitua Aluno() pelo objeto Aluno correspondente
+                                alunoId: alunoId,
+                              ),
                         ),
                       );
                     } else {
@@ -71,78 +74,6 @@ class _TelaAlteracaoState extends State<TelaAlteracao> {
                   }
                 },
                 child: Text("Buscar Aluno"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class TelaAlteracaoDetalhes extends StatefulWidget {
-  final Aluno aluno;
-
-  const TelaAlteracaoDetalhes({Key? key, required this.aluno})
-      : super(key: key);
-
-  @override
-  _TelaAlteracaoDetalhesState createState() => _TelaAlteracaoDetalhesState();
-}
-
-class _TelaAlteracaoDetalhesState extends State<TelaAlteracaoDetalhes> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nomeController = TextEditingController();
-  // Adicione controladores para outros campos de texto aqui
-
-  @override
-  void initState() {
-    super.initState();
-    preencherCampos();
-  }
-
-  void preencherCampos() {
-    _nomeController.text = widget.aluno.nome;
-    // Preencha outros controladores com os dados do aluno
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Tela Alteração Detalhes"),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                // Outros campos de texto aqui
-                decoration: InputDecoration(labelText: "Nome"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Por favor, insira um nome válido.";
-                  }
-                  return null;
-                },
-              ),
-              // Outros campos de texto aqui
-              ElevatedButton(
-                onPressed: () {
-                  // Lógica de atualização do registro no banco de dados
-                  // Após a alteração, navegue para a Home Page
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomePage(),
-                    ),
-                  );
-                },
-                child: Text("Confirmar"),
               ),
             ],
           ),

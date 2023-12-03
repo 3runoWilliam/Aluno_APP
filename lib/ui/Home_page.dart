@@ -3,6 +3,7 @@ import 'package:prova_aluno_pdm/domain/Aluno.dart';
 import 'package:prova_aluno_pdm/helpers/Aluno_helper.dart';
 import 'package:prova_aluno_pdm/ui/Cadastro_page.dart';
 import 'package:prova_aluno_pdm/ui/Detalhe_page.dart';
+import 'package:prova_aluno_pdm/ui/TelaAlteracaoDetalhes.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -93,9 +94,12 @@ class ListItem extends StatelessWidget {
         );
       },
       onLongPress: () {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Long Press"),
-        ));
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TelaAlteracaoDetalhes(aluno: aluno, alunoId: aluno.id),
+          ),
+        );
       },
       child: ListTile(
         title: Text(aluno.nome),
